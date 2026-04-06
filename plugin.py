@@ -35,6 +35,7 @@ STATUS_TIMEOUT = 8.0
 SYNC_TOOL_ID = f"{PLUGIN_NAME}.sync_tool"
 DRAW_HANDLER_ID = f"{PLUGIN_NAME}.tick"
 _PLUGIN_INSTANCE: "QuickSyncPlugin | None" = None
+_TOOLDEF_SUPPORTED_PARAMS: set[str] | None = None
 
 
 def _canonical_path(value: str) -> str:
@@ -105,6 +106,37 @@ def _make_tool_def(**kwargs):
             }
         filtered = {key: value for key, value in kwargs.items() if key in supported}
         return ToolDef(**filtered)
+
+
+def _tooldef_supported_params() -> set[str]:
+    global _TOOLDEF_SUPPORTED_PARAMS
+    if _TOOLDEF_SUPPORTED_PARAMS is not None:
+        return _TOOLDEF_SUPPORTED_PARAMS
+    if ToolDef is None:
+        _TOOLDEF_SUPPORTED_PARAMS = set()
+        return _TOOLDEF_SUPPORTED_PARAMS
+    try:
+        _TOOLDEF_SUPPORTED_PARAMS = set(inspect.signature(ToolDef).parameters.keys())
+    except Exception:
+        _TOOLDEF_SUPPORTED_PARAMS = {
+            "id",
+            "label",
+            "icon",
+            "group",
+            "order",
+            "description",
+            "shortcut",
+            "gizmo",
+            "operator",
+            "submodes",
+            "pivot_modes",
+            "poll",
+        }
+    return _TOOLDEF_SUPPORTED_PARAMS
+
+
+def _supports_tooldef_param(name: str) -> bool:
+    return name in _tooldef_supported_params()
 
 
 @dataclass
@@ -335,6 +367,8 @@ class QuickSyncPlugin:
 
     def trigger_toolbar_sync(self) -> None:
         self._queue_sync()
+        if not _supports_tooldef_param("action_only"):
+            self._restore_previous_tool()
 
     def _draw_sync_row(self, layout, link_state: dict[str, Any]) -> None:
         button_size = self._toolbar_button_size()
