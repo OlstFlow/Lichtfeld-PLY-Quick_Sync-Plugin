@@ -1,0 +1,12 @@
+[project]
+name = "ply_quick_sync"
+version = "0.1.0"
+description = "Quick per-node linked PLY overwrite plugin for LichtFeld Studio"
+authors = [{name = "OpenAI Codex"}]
+dependencies = []
+
+[tool.lichtfeld]
+hot_reload = true
+plugin_api = ">=1,<2"
+lichtfeld_version = ">=0.5.0"
+required_features = []
