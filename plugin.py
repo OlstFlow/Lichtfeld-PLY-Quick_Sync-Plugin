@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
+import inspect
 import json
 from pathlib import Path
 import time
@@ -76,6 +77,33 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
         return float(value)
     except (TypeError, ValueError):
         return default
+
+
+def _make_tool_def(**kwargs):
+    if ToolDef is None:
+        raise RuntimeError("ToolDef API unavailable")
+    try:
+        return ToolDef(**kwargs)
+    except TypeError:
+        try:
+            supported = set(inspect.signature(ToolDef).parameters.keys())
+        except Exception:
+            supported = {
+                "id",
+                "label",
+                "icon",
+                "group",
+                "order",
+                "description",
+                "shortcut",
+                "gizmo",
+                "operator",
+                "submodes",
+                "pivot_modes",
+                "poll",
+            }
+        filtered = {key: value for key, value in kwargs.items() if key in supported}
+        return ToolDef(**filtered)
 
 
 @dataclass
@@ -436,7 +464,7 @@ class QuickSyncPlugin:
         except Exception:
             pass
 
-        tool = ToolDef(
+        tool = _make_tool_def(
             id=SYNC_TOOL_ID,
             label="Quick Sync",
             icon=SYNC_ICON_NAME,
