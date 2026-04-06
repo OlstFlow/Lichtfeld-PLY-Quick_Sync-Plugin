@@ -27,7 +27,8 @@ PLUGIN_PATH = Path(__file__).resolve().parent
 STATE_PATH = PLUGIN_PATH / "state.json"
 LOG_PATH = PLUGIN_PATH / "sync.log"
 STATE_VERSION = 1
-SYNC_ICON_NAME = "sync"
+TOOLBAR_SYNC_ICON_NAME = "reset"
+PANEL_SYNC_ICON_NAME = "sync"
 LINK_ICON_NAME = "link"
 PLY_FORMAT = 0
 STATUS_TIMEOUT = 8.0
@@ -467,7 +468,7 @@ class QuickSyncPlugin:
         tool = _make_tool_def(
             id=SYNC_TOOL_ID,
             label="Quick Sync",
-            icon=SYNC_ICON_NAME,
+            icon=TOOLBAR_SYNC_ICON_NAME,
             group="transform",
             order=55,
             description="Quickly overwrite linked PLY files",
@@ -957,7 +958,7 @@ class QuickSyncPlugin:
         if not self._sync_icon_id:
             try:
                 self._sync_icon_id = lf.ui.load_plugin_icon(
-                    SYNC_ICON_NAME,
+                    PANEL_SYNC_ICON_NAME,
                     str(PLUGIN_PATH),
                     PLUGIN_NAME,
                 )
